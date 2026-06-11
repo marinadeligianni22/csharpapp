@@ -6,22 +6,41 @@ public class ProductsService : IProductsService
     private readonly RestApiSettings _restApiSettings;
     private readonly ILogger<ProductsService> _logger;
 
-    public ProductsService(IOptions<RestApiSettings> restApiSettings, 
+    public ProductsService(
+        HttpClient httpClient,
+        IOptions<RestApiSettings> restApiSettings,
         ILogger<ProductsService> logger)
     {
-        _httpClient = new HttpClient();
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _restApiSettings = restApiSettings.Value;
         _logger = logger;
     }
 
     public async Task<IReadOnlyCollection<Product>> GetProducts()
     {
-        _httpClient.BaseAddress = new Uri(_restApiSettings.BaseUrl!);
-        var response = await _httpClient.GetAsync(_restApiSettings.Products);
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        var res = JsonSerializer.Deserialize<List<Product>>(content);
-        
-        return res.AsReadOnly();
+        try
+        {
+            _logger.LogInformation("Fetching products from API");
+
+            var response = await _httpClient.GetAsync(_restApiSettings.Products);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var products = JsonSerializer.Deserialize<List<Product>>(content);
+
+            _logger.LogInformation("Successfully fetched {Count} products", products?.Count ?? 0);
+
+            return products?.AsReadOnly() ?? new List<Product>().AsReadOnly();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request failed while fetching products");
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize products response");
+            throw;
+        }
     }
 }
