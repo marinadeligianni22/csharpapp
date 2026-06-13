@@ -11,7 +11,7 @@ public static class DefaultConfiguration
 
         // Register MediatR and scan for handlers in Application assembly
         services.AddMediatR(cfg => 
-            cfg.RegisterServicesFromAssembly(typeof(ProductQueriesHandler).Assembly));
+            cfg.RegisterServicesFromAssembly(typeof(ProductsService).Assembly));
 
         return services;
     }

@@ -1,8 +1,9 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using CSharpApp.Application.Products.Queries;
-using CSharpApp.Application.Products.Commands;
+using CSharpApp.Application.Products.Queries.GetProducts;
+using CSharpApp.Application.Products.Queries.GetProductById;
+using CSharpApp.Application.Products.Commands.CreateProduct;
 
 namespace CSharpApp.Api.Controllers;
 

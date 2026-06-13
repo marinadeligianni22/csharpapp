@@ -1,14 +1,22 @@
-namespace CSharpApp.Application.Products.Commands;
+namespace CSharpApp.Application.Products.Commands.CreateProduct;
 
-public sealed class ProductCommandsHandler :
+public record CreateProductCommand(
+    string Title,
+    int Price,
+    string Description,
+    int CategoryId,
+    List<string> Images
+) : IRequest<Product>;
+
+public class CreateProductCommandHandler :
     IRequestHandler<CreateProductCommand, Product>
 {
     private readonly IProductsService _productsService;
-    private readonly ILogger<ProductCommandsHandler> _logger;
+    private readonly ILogger<CreateProductCommandHandler> _logger;
 
-    public ProductCommandsHandler(
+    public CreateProductCommandHandler(
         IProductsService productsService,
-        ILogger<ProductCommandsHandler> logger)
+        ILogger<CreateProductCommandHandler> logger)
     {
         _productsService = productsService ?? throw new ArgumentNullException(nameof(productsService));
         _logger = logger;

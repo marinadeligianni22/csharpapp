@@ -1,32 +1,21 @@
-namespace CSharpApp.Application.Products.Queries;
+﻿using CSharpApp.Application.Products.Queries.GetProducts;
 
-/// <summary>
-/// Handles all product-related queries
-/// </summary>
-public sealed class ProductQueriesHandler :
-    IRequestHandler<GetAllProductsQuery, IReadOnlyCollection<Product>>,
+namespace CSharpApp.Application.Products.Queries.GetProductById;
+
+public record GetProductByIdQuery(int Id) : IRequest<Product?>;
+
+public class GetProductByIdQueryHandler :
     IRequestHandler<GetProductByIdQuery, Product?>
 {
     private readonly IProductsService _productsService;
-    private readonly ILogger<ProductQueriesHandler> _logger;
+    private readonly ILogger<GetProductByIdQueryHandler> _logger;
 
-    public ProductQueriesHandler(
+    public GetProductByIdQueryHandler(
         IProductsService productsService,
-        ILogger<ProductQueriesHandler> logger)
+        ILogger<GetProductByIdQueryHandler> logger)
     {
         _productsService = productsService ?? throw new ArgumentNullException(nameof(productsService));
         _logger = logger;
-    }
-
-    public async Task<IReadOnlyCollection<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Handling GetAllProductsQuery");
-
-        var products = await _productsService.GetProducts();
-
-        _logger.LogInformation("Successfully retrieved {Count} products", products.Count);
-
-        return products;
     }
 
     public async Task<Product?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
