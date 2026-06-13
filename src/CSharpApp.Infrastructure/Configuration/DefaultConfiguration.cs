@@ -9,6 +9,10 @@ public static class DefaultConfiguration
         services.Configure<RestApiSettings>(configuration.GetSection(nameof(RestApiSettings)));
         services.Configure<HttpClientSettings>(configuration.GetSection(nameof(HttpClientSettings)));
 
+        // Register MediatR and scan for handlers in Application assembly
+        services.AddMediatR(cfg => 
+            cfg.RegisterServicesFromAssembly(typeof(ProductQueriesHandler).Assembly));
+
         return services;
     }
 }

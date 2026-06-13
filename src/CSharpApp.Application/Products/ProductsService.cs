@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+
 namespace CSharpApp.Application.Products;
 
 public class ProductsService : IProductsService
@@ -40,6 +42,72 @@ public class ProductsService : IProductsService
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to deserialize products response");
+            throw;
+        }
+    }
+
+    public async Task<Product?> GetProductById(int id)
+    {
+        try
+        {
+            _logger.LogInformation("Fetching product with ID: {ProductId} from API", id);
+
+            var response = await _httpClient.GetAsync($"{_restApiSettings.Products}/{id}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                _logger.LogWarning("Product with ID {ProductId} not found", id);
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var product = JsonSerializer.Deserialize<Product>(content);
+
+            _logger.LogInformation("Successfully fetched product with ID: {ProductId}", id);
+
+            return product;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request failed while fetching product {ProductId}", id);
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize product response for ID {ProductId}", id);
+            throw;
+        }
+    }
+
+    public async Task<Product> CreateProduct(string title, int price, string description, int categoryId, List<string> images)
+    {
+        try
+        {
+            _logger.LogInformation("Creating new product: {Title}", title);
+
+            var payload = new { title, price, description, categoryId, images };
+
+            var response = await _httpClient.PostAsJsonAsync(_restApiSettings.Products, payload);
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var createdProduct = JsonSerializer.Deserialize<Product>(content);
+
+            _logger.LogInformation("Successfully created product with ID: {ProductId}", createdProduct?.Id);
+
+            return createdProduct!;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request failed while creating product");
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize created product response");
             throw;
         }
     }
