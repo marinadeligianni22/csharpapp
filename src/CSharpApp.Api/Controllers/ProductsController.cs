@@ -34,7 +34,6 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-
     [HttpGet("{productId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

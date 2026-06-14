@@ -1,3 +1,5 @@
+using CSharpApp.Application.Categories;
+
 namespace CSharpApp.Infrastructure.Configuration;
 
 public static class HttpConfiguration
@@ -22,6 +24,11 @@ public static class HttpConfiguration
         };
 
         services.AddHttpClient<IProductsService, ProductsService>(configureClient)
+            .SetHandlerLifetime(TimeSpan.FromMinutes(httpClientSettings.LifeTime))
+            .AddPolicyHandler(GetRetryPolicy(httpClientSettings))
+            .AddPolicyHandler(GetCircuitBreakerPolicy());
+
+        services.AddHttpClient<ICategoriesService, CategoriesService>(configureClient)
             .SetHandlerLifetime(TimeSpan.FromMinutes(httpClientSettings.LifeTime))
             .AddPolicyHandler(GetRetryPolicy(httpClientSettings))
             .AddPolicyHandler(GetCircuitBreakerPolicy());

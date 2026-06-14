@@ -1,6 +1,4 @@
-﻿using CSharpApp.Application.Products.Queries.GetProducts;
-
-namespace CSharpApp.Application.Products.Queries.GetProductById;
+﻿namespace CSharpApp.Application.Products.Queries.GetProductById;
 
 public record GetProductByIdQuery(int Id) : IRequest<Product?>;
 
