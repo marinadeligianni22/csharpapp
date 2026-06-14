@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
 using CSharpApp.Application.Categories.Commands.CreateCategory;
+using CSharpApp.Application.Categories.Commands.UpdateCategory;
 using CSharpApp.Application.Categories.Queries.GetCategoryById;
-using CSharpApp.Application.Products.Queries.GetProductById;
+using CSharpApp.Application.Categories.Queries.GetAllCategories;
+
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +21,19 @@ public class CategoriesController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAll()
+    {
+        _logger.LogInformation("GetAll categories endpoint called");
+
+        var query = new GetAllCategoriesQuery();
+        var categories = await _mediator.Send(query);
+
+        return Ok(categories);
     }
 
     [HttpGet("{categoryId:int}")]
@@ -55,6 +70,15 @@ public class CategoriesController : ControllerBase
             nameof(GetCatyegoryById),
             new { categoryId = createdCategory.Id },
             createdCategory);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryCommand command, CancellationToken cancellationToken)
+    {
+        var updatedCommand = command with { Id = id };
+
+        var result = await _mediator.Send(updatedCommand, cancellationToken);
+        return Ok(result);
     }
 
 }
